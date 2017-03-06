@@ -1,7 +1,9 @@
 import cgi
+import sqlite3
 
 data = cgi.FieldStorage()
 
 
-print "Content-Type: text/x-json\n"
-print data["region"].value
+
+# print "Content-Type: text/html"
+print {'values': data["region"].value}
