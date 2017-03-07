@@ -1,28 +1,53 @@
-<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Magnit | View comments</title>
-    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="../static/js/script.js" type="text/javascript"></script>
+    <title>Магнит | Добавить комментарий</title>
+    <style>
+        .elements { width: 170px };
+    </style>
+    <script type="text/javascript" 
+    src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        function changeCities(region) {
+            $.ajax({
+                url: "/comment/",
+                context: document.body,
+                data: {"region": region},
+                success: function(response){
+                    $('#city option[value!="none"]').remove();
+                    $.each(response, function (i, item) {
+                        $('#city').append($('<option>', {
+                            value: i,
+                            text: item
+                        }));
+                    });
+                }
+            });
+        }
+    </script>
 </head>
 <body>
     <form action="" method="POST">
-        <input type="text" name="surname" id="surname">
-        <input type="text" name="name" id="name">
-        <input type="text" name="middlename" id="middlename">
-        <select id="region" onchange="changeCities(this.value)">
+        <label for="surname">Фамилия*:</label><br>
+        <input type="text" name="surname" id="surname" class="elements"><br>
+        <label for="name">Имя*:</label><br>
+        <input type="text" name="name" id="name" class="elements"><br>
+        <label for="middlename">Отчество:</label><br>
+        <input type="text" name="middlename" id="middlename" class="elements"><br>
+        <label for="region">Регион:</label><br>
+        <select id="region" onchange="changeCities(this.value)" class="elements">
             <option value="default"></option>
-            <option value="1">Краснодарский край</option>
-            <option value="2">Ростовская область</option>
-            <option value="3">Ставропольский край</option>
-        </select>
-        <select id="city"></select>
-        <input type="text" name="phone" id="phone">
-        <input type="text" name="email" id="phone">
-        <input type="text" name="comment" id="comment">
-        <input type="submit" value="Добавить" id="button">
+        </select><br>
+        <label for="city">Город:</label><br>
+        <select id="city" class="elements">%s</select><br>
+        <label for="phone">Телефон:</label><br>
+        <input type="text" name="phone" id="phone" class="elements"><br>
+        <label for="email">Email:</label><br>
+        <input type="text" name="email" id="email" class="elements"><br>
+        <label for="comment">Комментарий*:</label><br>
+        <textarea name="comment" id="comment" class="elements"></textarea><br>
+        <input type="submit" value="Добавить" id="button"><br><br>
+        <p>Поля со звёздочкой (*) обязательны для заполнения</p>
     </form>
 </body>
 </html>

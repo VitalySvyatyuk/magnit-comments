@@ -1,5 +1,5 @@
 CREATE TABLE comments
-(  id                     INTEGER(3)             PRIMARY KEY
+(  id                     INTEGER                PRIMARY KEY
  , surname                TEXT(20)               NOT NULL
  , name                   TEXT(20)               NOT NULL
  , middlename             TEXT(20)               NULL
@@ -13,12 +13,12 @@ CREATE TABLE comments
 );
 
 CREATE TABLE regions
-(  id                     INTEGER(3)             PRIMARY KEY
+(  id                     INTEGER                PRIMARY KEY
  , region                 TEXT(30)               NOT NULL
 );
 
 CREATE TABLE cities
-(  id                     INTEGER(3)             PRIMARY KEY    
+(  id                     INTEGER                PRIMARY KEY    
  , city                   TEXT(30)               NOT NULL
  , region_id              INTEGER(3)             NOT NULL
  , FOREIGN KEY(region_id) REFERENCES regions(id)
@@ -37,3 +37,41 @@ INSERT INTO cities VALUES (6, 'Батайск', 2);
 INSERT INTO cities VALUES (7, 'Ставрополь', 3);
 INSERT INTO cities VALUES (8, 'Пятигорск', 3);
 INSERT INTO cities VALUES (9, 'Кисловодск', 3);
+
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Святюк',
+     'Виталий',
+     'Игоревич',
+     '3',
+     '2',
+     '79283609884',
+     'wer@fds.ru',
+     'Комментарий номер один!!11'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Иванов',
+     'Иван',
+     'Петрович',
+     '2',
+     '1',
+     '79283609844',
+     'ivan@fdssdf.com',
+     'Второй комментарий номер два'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Сидоров',
+     'Николай',
+     'Евгеньевич',
+     '1',
+     '3',
+     '79254358496',
+     'sid@yahoo.com',
+     'Третий язвительный комментарий номер три.
+      Повторный третий язвительный комментарий номер три.'
+    );

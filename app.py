@@ -8,72 +8,22 @@ from wsgiref.simple_server import make_server
 from cgi import parse_qs
 
 
-html = """
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Magnit | View comments</title>
-    <style>
-        .elements { width: 170px };
-    </style>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script>
-        function changeCities(region) {
-            $.ajax({
-                url: "comment.html",
-                context: document.body,
-                data: {"region": region},
-                success: function(response){
-                    $('#city option[value!="none"]').remove();
-                    $.each(response, function (i, item) {
-                        $('#city').append($('<option>', {
-                            value: i,
-                            text: item
-                        }));
-                    });
-                }
-            });
-        }
-    </script>
-</head>
-<body>
-    <form action="" method="POST">
-        <label for="surname">Фамилия:</label><br>
-        <input type="text" name="surname" id="surname" class="elements"><br>
-        <label for="name">Имя:</label><br>
-        <input type="text" name="name" id="name" class="elements"><br>
-        <label for="middlename">Отчество:</label><br>
-        <input type="text" name="middlename" id="middlename" class="elements"><br>
-        <label for="region">Регион:</label><br>
-        <select id="region" onchange="changeCities(this.value)" class="elements">
-            <option value="default"></option>
-        </select><br>
-        <label for="city">Город:</label><br>
-        <select id="city" class="elements">%s</select><br>
-        <label for="phone">Телефон:</label><br>
-        <input type="text" name="phone" id="phone" class="elements"><br>
-        <label for="email">Email:</label><br>
-        <input type="text" name="email" id="email" class="elements"><br>
-        <label for="comment">Комментарий:</label><br>
-        <textarea name="comment" id="comment" class="elements"></textarea><br>
-        <input type="submit" value="Добавить" id="button">
-    </form>
-</body>
-</html>
-"""
-
 def application(environ, start_response):
-    if "/comment" in environ["PATH_INFO"].lower():
+    comment_template = open("templates/comment.html", "r")
+    html = comment_template.read()
+    comment_template.close()
+    if environ["PATH_INFO"].lower().startswith("/comment"):
         conn = sqlite3.connect("comments.db")
         c = conn.cursor()
         c.execute("SELECT * FROM regions")
         regions = c.fetchall()
         options = ""
         for region in regions:
-            options += '<option value="{}">{}</option>'.format(region[0], region[1].encode('utf-8'))
-        htm = html.replace('"default"></option>', 'default"></option>' + options)
+            options += '<option value="{}">{}</option>' \
+                       .format(region[0], region[1].encode('utf-8'))
+        htm = html.replace('"default"></option>', 
+                            'default"></option>' + options)
         
-
         if environ["QUERY_STRING"] == "" :
             option = '<option value="none"></option>'
             response_body = htm % option
@@ -85,11 +35,11 @@ def application(environ, start_response):
             ]   
         elif environ["REQUEST_METHOD"] == "GET":
             region_ = environ["QUERY_STRING"].replace("region=", "")
-            print region_
             if region_ != "default%22":
                 conn = sqlite3.connect("comments.db")
                 c = conn.cursor()
-                c.execute("SELECT * FROM cities WHERE region_id = {}".format(int(region_)))
+                c.execute("SELECT * FROM cities WHERE region_id = {}"
+                          .format(int(region_)))
                 cities = c.fetchall()
                 option = {}
                 for city in cities:
@@ -108,15 +58,58 @@ def application(environ, start_response):
         elif environ["REQUEST_METHOD"] == "POST":
             pass
     else:
-        response_body = [
-            '%s: %s' % (key, value) for key, value in sorted(environ.items())
-        ]
-        response_body = '\n'.join(response_body)
+        if (environ["PATH_INFO"].lower() == "/view" or 
+            environ["PATH_INFO"].lower() == "/view/"):
+            if environ["QUERY_STRING"] != "":
+                remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
+                conn = sqlite3.connect("comments.db")
+                c = conn.cursor()
+                c.execute("DELETE FROM comments WHERE id={}".format(remove_id))
+                conn.commit()
+                c.close()
+            view_template = open("templates/view.html", "r")
+            view = view_template.read()
+            view_template.close()
+            conn = sqlite3.connect("comments.db")
+            c = conn.cursor()
+            c.execute("SELECT * FROM comments")
+            comments = c.fetchall()
+            c.close()
+            comments_table = ""
+            for comment in comments:
+                comments_table += '<tr>'
+                for com in comment:
+                    if com == None:
+                        comments_table += '<td></td>'
+                    elif isinstance(com, int):
+                        comments_table += '<td>' + str(com) + '</td>'
+                    else:
+                        comments_table += '<td>' + com.encode("utf-8") \
+                                        + '</td>'
+                comments_table += '<td><a onclick="removeComment(this)" \
+                                   href="../view/">Удалить</a></td></tr>'
+                # comments_table += '<td><button onclick="removeComment(this);">Удалить</button></td></tr>'
+
+            
+            response_body = view % comments_table
+
+            if environ["QUERY_STRING"] != "":
+                remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
+                
+
+
+        elif (environ["PATH_INFO"].lower() == "/stat" or 
+              environ["PATH_INFO"].lower() == "/stat/"):
+            pass
+        else:
+            default_page = open("templates/default_page.html", "r")
+            response_body =  default_page.read()
+            default_page.close()
 
         status = '200 OK'
         response_headers = [
             ('Access-Control-Allow-Origin', '*'),
-            ('Content-Type', 'application/json'),
+            ('Content-Type', 'text/html'),
             ('Content-Length', str(len(response_body))),
         ]
     start_response(status, response_headers)
@@ -124,10 +117,12 @@ def application(environ, start_response):
 
 def main():
     if not os.path.isfile("comments.db"):
-        db_script = open("db_script.sql", "r").read()
+        db_script = open("db_script.sql", "r")
+        script = db_script.read()
+        db_script.close()
         conn = sqlite3.connect("comments.db")
         c = conn.cursor()
-        c.executescript(db_script)
+        c.executescript(script)
         conn.commit()
         c.close()
 

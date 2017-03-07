@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Магнит | Комментарии</title>
+    <script type="text/javascript" \
+    src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script >
+        function removeComment(butn) {
+            var td = $(butn).closest('tr').find('td:eq(0)').text();
+
+            $.ajax({
+                url: "/view/",
+                context: document.body,
+                data: {"to_remove": td},
+                // success: function(response){
+                //     // location.reload();
+                // }
+            });
+        }
+    </script>
+</head>
+<body>
+    <table border="1" cellpadding="5" 
+           style="border-collapse: collapse; border: 1px solid black;">
+        <tr style="background-color: yellow">
+            <th>№</th>
+            <th>Фамилия</th>
+            <th>Имя</th>
+            <th>Отчество</th>
+            <th>Регион</th>
+            <th>Город</th>
+            <th>Телефон</th>
+            <th>Email</th>
+            <th>Комментарий</th>
+            <th></th>
+        </tr>
+        %s
+    </table>
+</body>
+</html>
