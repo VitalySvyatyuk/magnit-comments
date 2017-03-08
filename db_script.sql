@@ -5,7 +5,7 @@ CREATE TABLE comments
  , middlename             TEXT(20)               NULL
  , region                 INTEGER(3)             NULL
  , city                   INTEGER(3)             NULL
- , phone                  TEXT(11)               NULL
+ , phone                  TEXT(12)               NULL
  , email                  TEXT(20)               NULL
  , comment                TEXT(400)              NOT NULL
  , FOREIGN KEY(region)    REFERENCES regions(id)
@@ -41,14 +41,74 @@ INSERT INTO cities VALUES (9, 'Кисловодск', 3);
 INSERT INTO comments (surname, name, middlename, region,
                       city, phone, email, comment)
     VALUES (
-     'Святюк',
-     'Виталий',
-     'Игоревич',
+     'Петров',
+     'Петр',
+     'Геннадьевич',
      '3',
-     '2',
-     '79283609884',
+     '9',
+     '(928)3609884',
      'wer@fds.ru',
      'Комментарий номер один!!11'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Семенов',
+     'Семен',
+     'Петрович',
+     '3',
+     '7',
+     '(928)8889849',
+     'semenwer@fds.ru',
+     'Lorum ipsum dolor.'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Александров',
+     'Александр',
+     'Степанович',
+     '3',
+     '8',
+     '(924)5609844',
+     'se@mail.ru',
+     'Lorum ipsum dolor. Lorum ipsum dolor.'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Алексеев',
+     'Алексей',
+     'Сережаевич',
+     '3',
+     '9',
+     '(933)5211211',
+     'alex12@gmail.com',
+     'Lorum ipsum dolor. Lorum ipsum dolor.'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Тарасов',
+     'Антон',
+     'Федорович',
+     '3',
+     '8',
+     '(926)5667789',
+     'taras@list.ru',
+     'Lorum ipsum dolor. Lorum ipsum dolor.'
+    );
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
+    VALUES (
+     'Охмат',
+     'Артем',
+     'Александрович',
+     '3',
+     '7',
+     '(929)4312232',
+     'ohmat@list.ru',
+     'Lorum ipsum dolor. Lorum ipsum dolor.'
     );
 INSERT INTO comments (surname, name, middlename, region,
                       city, phone, email, comment)
@@ -57,8 +117,8 @@ INSERT INTO comments (surname, name, middlename, region,
      'Иван',
      'Петрович',
      '2',
-     '1',
-     '79283609844',
+     '4',
+     '(918)5554433',
      'ivan@fdssdf.com',
      'Второй комментарий номер два'
     );
@@ -70,8 +130,16 @@ INSERT INTO comments (surname, name, middlename, region,
      'Евгеньевич',
      '1',
      '3',
-     '79254358496',
+     '(925)4358496',
      'sid@yahoo.com',
+     'Четвёртый комментарий. Четвёртый комментарий.'
+    );
+INSERT INTO comments (surname, name, region, city, comment)
+    VALUES (
+     'Фролов',
+     'Вячеслав',
+     '1',
+     '2',
      'Третий язвительный комментарий номер три.
       Повторный третий язвительный комментарий номер три.'
     );

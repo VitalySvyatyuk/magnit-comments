@@ -57,6 +57,8 @@ def application(environ, start_response):
             ]
         elif environ["REQUEST_METHOD"] == "POST":
             pass
+            # if valid - return /view/ page
+            # if not valid - retun /comment/ page with error fields
     else:
         if (environ["PATH_INFO"].lower() == "/view" or 
             environ["PATH_INFO"].lower() == "/view/"):
@@ -72,11 +74,17 @@ def application(environ, start_response):
             view_template.close()
             conn = sqlite3.connect("comments.db")
             c = conn.cursor()
-            c.execute("SELECT * FROM comments")
+            c.execute("SELECT * FROM comments " + \
+                       "LEFT JOIN regions ON comments.region = regions.id " + \
+                       "LEFT JOIN cities  ON comments.city = cities.id " )
             comments = c.fetchall()
             c.close()
             comments_table = ""
             for comment in comments:
+                comment = list(comment)
+                comment[4] = comment[10]
+                comment[5] = comment[12]
+                comment = comment[:9]
                 comments_table += '<tr>'
                 for com in comment:
                     if com == None:
