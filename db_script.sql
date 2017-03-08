@@ -5,7 +5,7 @@ CREATE TABLE comments
  , middlename             TEXT(20)               NULL
  , region                 INTEGER(3)             NULL
  , city                   INTEGER(3)             NULL
- , phone                  TEXT(12)               NULL
+ , phone                  TEXT(20)               NULL
  , email                  TEXT(20)               NULL
  , comment                TEXT(400)              NOT NULL
  , FOREIGN KEY(region)    REFERENCES regions(id)

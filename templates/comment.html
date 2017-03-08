@@ -3,7 +3,8 @@
     <meta charset="UTF-8">
     <title>Магнит | Добавить комментарий</title>
     <style>
-        .elements { width: 170px };
+        .elements { width: 170px; }
+        .errorBorder { border: 2px solid red }
     </style>
     <script type="text/javascript" 
     src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -23,15 +24,46 @@
                     });
                 }
             });
-        }
+        };
+        // $(document).ready(function(){
+        //     if ($('#surname').text() == "" || $('#name').text() == "" ||
+        //         $('#comment').text() == "") {
+        //             $('#button').prop('disabled', true);
+        //     } else {
+        //        $('#button').prop('disabled', false);
+        //     }
+        // });
+
+// WHEN THE ALL VALIDATIONS END:     $('#button').prop('disabled', false);
+
+        var errors = true;
+        function phoneValidation(phone) {
+            if (phone.val() == "") {
+                $(phone).removeClass("errorBorder");
+            } else if {
+                // if valid removeclass error
+            } else {
+                //addClassError
+            }
+        };
+        function emailValidation(email) {
+            
+        };
+        function emptyValidation(compulsoryField) {
+            if($(compulsoryField).val() == "") {
+                $(compulsoryField).addClass("errorBorder");
+            } else {
+                $(compulsoryField).removeClass("errorBorder");
+            }
+        };
     </script>
 </head>
 <body>
-    <form action="" method="POST">
+    <form action="../view/" method="POST">
         <label for="surname">Фамилия*:</label><br>
-        <input type="text" name="surname" id="surname" class="elements"><br>
+        <input type="text" name="surname" id="surname" class="elements" onblur="emptyValidation(this)"><br>
         <label for="name">Имя*:</label><br>
-        <input type="text" name="name" id="name" class="elements"><br>
+        <input type="text" name="name" id="name" class="elements" onblur="emptyValidation(this)"><br>
         <label for="middlename">Отчество:</label><br>
         <input type="text" name="middlename" id="middlename" class="elements"><br>
         <label for="region">Регион:</label><br>
@@ -41,13 +73,14 @@
         <label for="city">Город:</label><br>
         <select id="city" class="elements">%s</select><br>
         <label for="phone">Телефон:</label><br>
-        <input type="text" name="phone" id="phone" class="elements"><br>
+        <input type="text" name="phone" id="phone" class="elements" onblur="phoneValidation(this)"><br>
         <label for="email">Email:</label><br>
-        <input type="text" name="email" id="email" class="elements"><br>
+        <input type="text" name="email" id="email" class="elements" onblur="emailValidation(this)"><br>
         <label for="comment">Комментарий*:</label><br>
-        <textarea name="comment" id="comment" class="elements"></textarea><br>
-        <input type="submit" value="Добавить" id="button"><br><br>
+        <textarea name="comment" id="comment" class="elements" onblur="emptyValidation(this)"></textarea><br>
+        <input type="submit" value="Добавить" id="button" disabled><br><br>
         <p>Поля со звёздочкой (*) обязательны для заполнения</p>
+        <p>Образец заполнения поля Телефон: (928)8186487</p>
     </form>
 </body>
 </html>
