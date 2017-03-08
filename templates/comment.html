@@ -38,16 +38,32 @@
 
         var errors = true;
         function phoneValidation(phone) {
-            if (phone.val() == "") {
+            var phoneNumber = $(phone).val();
+            if (phoneNumber == "") {
                 $(phone).removeClass("errorBorder");
-            } else if {
-                // if valid removeclass error
             } else {
-                //addClassError
+                var regExpPhone = /^\([0-9]{2,4}\)[0-9]{5,15}$/;
+                var validPhoneResult = regExpPhone.test(phoneNumber);
+                if (validPhoneResult) {
+                    $(phone).removeClass("errorBorder");
+                } else {
+                    $(phone).addClass("errorBorder");
+                }  
             }
         };
         function emailValidation(email) {
-            
+            var emailString = $(email).val();
+            if (emailString == "") {
+                $(email).removeClass("errorBorder");
+            } else {
+                var regExpEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+                var validEmailResult = regExpEmail.test(emailString);
+                if (validEmailResult) {
+                    $(email).removeClass("errorBorder");
+                } else {
+                    $(email).addClass("errorBorder");
+                }  
+            }
         };
         function emptyValidation(compulsoryField) {
             if($(compulsoryField).val() == "") {
