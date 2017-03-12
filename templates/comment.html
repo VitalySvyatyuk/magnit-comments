@@ -9,6 +9,73 @@
     <script type="text/javascript" 
     src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script>
+
+        
+        function formValidation() {
+            var errors = [];
+            // Surname validation
+            if ($('#surname').val() == "") {
+                $('#surname').addClass("errorBorder");
+                if ($.inArray('surname', errors) == -1) { errors.push('surname') };
+            } else {
+                $('#surname').removeClass("errorBorder");
+                if ($.inArray('surname', errors) > -1) { errors.splice(index, errors.indexOf('surname')) };
+            }
+            errors.push['Forced']
+            // Name validation
+            if ($('#name').val() == "") {
+                $('#name').addClass("errorBorder");
+                if ($.inArray('name', errors) == -1) { errors.push('name') };
+            } else {
+                $('#name').removeClass("errorBorder");
+                if ($.inArray('name', errors) > -1) { errors.splice(index, errors.indexOf('name')) };
+            }
+            // Phone validation
+            var phoneNumber = $('#phone').val();
+            if (phoneNumber == "") {
+                $('#phone').removeClass("errorBorder");
+            } else {
+                var regExpPhone = /^\([0-9]{2,4}\)[0-9]{5,15}$/;
+                var validPhoneResult = regExpPhone.test(phoneNumber);
+                if (validPhoneResult) {
+                    $('#phone').removeClass("errorBorder");
+                    if ($.inArray('phone', errors) > -1) { errors.splice(index, errors.indexOf('phone')) };
+                } else {
+                    $('#phone').addClass("errorBorder");
+                    if ($.inArray('phone', errors) == -1) { errors.push('phone') };
+                }  
+            }
+            // Email validation
+            var emailString = $('#email').val();
+            if (emailString == "") {
+                $('#email').removeClass("errorBorder");
+            } else {
+                var regExpEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+                var validEmailResult = regExpEmail.test(emailString);
+                if (validEmailResult) {
+                    $('#email').removeClass("errorBorder");
+                    if ($.inArray('email', errors) > -1) { errors.splice(index, errors.indexOf('email')) };
+                } else {
+                    $('#email').addClass("errorBorder");
+                    if ($.inArray('email', errors) == -1) { errors.push('email') };
+                }  
+            }
+            // Comment validation
+            if ($('#comment').val() == "") {
+                $('#comment').addClass("errorBorder");
+                if ($.inArray('comment', errors) == -1) { errors.push('comment') };
+            } else {
+                $('#comment').removeClass("errorBorder");
+                if ($.inArray('comment', errors) > -1) { errors.splice(index, errors.indexOf('comment')) };
+            }
+
+            if (errors.length != 0) {
+                return false;
+            } else {
+                return true;
+            } 
+        };
+
         function changeCities(region) {
             $.ajax({
                 url: "/comment/",
@@ -16,70 +83,25 @@
                 data: {"region": region},
                 success: function(response){
                     $('#city option[value!="none"]').remove();
-                    $.each(response, function (i, item) {
+                    var resp_data = JSON.parse(response);
+                    $.each(resp_data, function (i, item) {
                         $('#city').append($('<option>', {
                             value: i,
                             text: item
                         }));
                     });
+                    // location.reload();
                 }
             });
-        };
-        // $(document).ready(function(){
-        //     if ($('#surname').text() == "" || $('#name').text() == "" ||
-        //         $('#comment').text() == "") {
-        //             $('#button').prop('disabled', true);
-        //     } else {
-        //        $('#button').prop('disabled', false);
-        //     }
-        // });
-
-// WHEN THE ALL VALIDATIONS END:     $('#button').prop('disabled', false);
-
-        var errors = false;
-        function phoneValidation(phone) {
-            var phoneNumber = $(phone).val();
-            if (phoneNumber == "") {
-                $(phone).removeClass("errorBorder");
-            } else {
-                var regExpPhone = /^\([0-9]{2,4}\)[0-9]{5,15}$/;
-                var validPhoneResult = regExpPhone.test(phoneNumber);
-                if (validPhoneResult) {
-                    $(phone).removeClass("errorBorder");
-                } else {
-                    $(phone).addClass("errorBorder");
-                }  
-            }
-        };
-        function emailValidation(email) {
-            var emailString = $(email).val();
-            if (emailString == "") {
-                $(email).removeClass("errorBorder");
-            } else {
-                var regExpEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-                var validEmailResult = regExpEmail.test(emailString);
-                if (validEmailResult) {
-                    $(email).removeClass("errorBorder");
-                } else {
-                    $(email).addClass("errorBorder");
-                }  
-            }
-        };
-        function emptyValidation(compulsoryField) {
-            if($(compulsoryField).val() == "") {
-                $(compulsoryField).addClass("errorBorder");
-            } else {
-                $(compulsoryField).removeClass("errorBorder");
-            }
         };
     </script>
 </head>
 <body>
-    <form action="../view/" method="POST">
+    <form action="../view/" method="POST" onsubmit="return formValidation()">
         <label for="surname">Фамилия*:</label><br>
-        <input type="text" name="surname" id="surname" class="elements" onblur="emptyValidation(this)"><br>
+        <input type="text" name="surname" id="surname" class="elements"><br>
         <label for="name">Имя*:</label><br>
-        <input type="text" name="name" id="name" class="elements" onblur="emptyValidation(this)"><br>
+        <input type="text" name="name" id="name" class="elements"><br>
         <label for="middlename">Отчество:</label><br>
         <input type="text" name="middlename" id="middlename" class="elements"><br>
         <label for="region">Регион:</label><br>
@@ -89,12 +111,12 @@
         <label for="city">Город:</label><br>
         <select id="city" class="elements">%s</select><br>
         <label for="phone">Телефон:</label><br>
-        <input type="text" name="phone" id="phone" class="elements" onblur="phoneValidation(this)"><br>
+        <input type="text" name="phone" id="phone" class="elements"><br>
         <label for="email">Email:</label><br>
-        <input type="text" name="email" id="email" class="elements" onblur="emailValidation(this)"><br>
+        <input type="text" name="email" id="email" class="elements"><br>
         <label for="comment">Комментарий*:</label><br>
-        <textarea name="comment" id="comment" class="elements" onblur="emptyValidation(this)"></textarea><br>
-        <input type="submit" value="Добавить" id="button" disabled><br><br>
+        <textarea name="comment" id="comment" class="elements"></textarea><br>
+        <input type="submit" value="Добавить" id="button"><br><br>
         <p>Поля со звёздочкой (*) обязательны для заполнения</p>
         <p>Образец заполнения поля Телефон: (928)8186487</p>
     </form>

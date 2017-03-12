@@ -5,7 +5,7 @@ import re
 import sqlite3
 import json
 from wsgiref.simple_server import make_server
-from cgi import parse_qs
+from urlparse import parse_qs
 
 
 def application(environ, start_response):
@@ -23,8 +23,8 @@ def application(environ, start_response):
                        .format(region[0], region[1].encode('utf-8'))
         htm = html.replace('"default"></option>', 
                             'default"></option>' + options)
-        
-        if environ["QUERY_STRING"] == "" :
+
+        if environ["QUERY_STRING"] == "":
             option = '<option value="none"></option>'
             response_body = htm % option
             status = '200 OK'
@@ -32,8 +32,8 @@ def application(environ, start_response):
                 ('Access-Control-Allow-Origin', '*'),
                 ('Content-Type', 'text/html'),
                 ('Content-Length', str(len(response_body))),
-            ]   
-        elif environ["REQUEST_METHOD"] == "GET":
+            ]
+        else:
             region_ = environ["QUERY_STRING"].replace("region=", "")
             if region_ != "default%22":
                 conn = sqlite3.connect("comments.db")
@@ -54,14 +54,10 @@ def application(environ, start_response):
                 ('Access-Control-Allow-Origin', '*'),
                 ('Content-Type', 'application/json'),
                 ('Content-Length', str(len(response_body))),
-            ]
-        elif environ["REQUEST_METHOD"] == "POST":
-            pass
-            # if valid - return /view/ page
-            # if not valid - retun /comment/ page with error fields
-    else:
-        if (environ["PATH_INFO"].lower() == "/view" or 
-            environ["PATH_INFO"].lower() == "/view/"):
+            ]            
+    elif (environ["PATH_INFO"].lower() == "/view" or 
+        environ["PATH_INFO"].lower() == "/view/"):
+        if environ["REQUEST_METHOD"] == "GET":
             if environ["QUERY_STRING"] != "":
                 remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
                 conn = sqlite3.connect("comments.db")
@@ -69,57 +65,81 @@ def application(environ, start_response):
                 c.execute("DELETE FROM comments WHERE id={}".format(remove_id))
                 conn.commit()
                 c.close()
-            view_template = open("templates/view.html", "r")
-            view = view_template.read()
-            view_template.close()
-            conn = sqlite3.connect("comments.db")
-            c = conn.cursor()
-            c.execute("SELECT * FROM comments " + \
-                       "LEFT JOIN regions ON comments.region = regions.id " + \
-                       "LEFT JOIN cities  ON comments.city = cities.id " )
-            comments = c.fetchall()
-            c.close()
-            comments_table = ""
-            for comment in comments:
-                comment = list(comment)
-                comment[4] = comment[10]
-                comment[5] = comment[12]
-                comment = comment[:9]
-                comments_table += '<tr>'
-                for com in comment:
-                    if com == None:
-                        comments_table += '<td></td>'
-                    elif isinstance(com, int):
-                        comments_table += '<td>' + str(com) + '</td>'
-                    else:
-                        comments_table += '<td>' + com.encode("utf-8") \
-                                        + '</td>'
-                comments_table += '<td><a onclick="removeComment(this)" \
-                                   href="../view/">Удалить</a></td></tr>'
-                # comments_table += '<td><button onclick="removeComment(this);">Удалить</button></td></tr>'
+        elif environ["REQUEST_METHOD"] == "POST":
+            try:
+                request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+            except (ValueError):
+                request_body_size = 0
 
-            
-            response_body = view % comments_table
+            request_body = environ['wsgi.input'].read(request_body_size)
+            d_parse = parse_qs(request_body)
+            print d_parse
+            # d_surname = d.get('surname', [''])[0]
+            # d_name = d.get('name', [''])[0]
+            # d_middlename = d.get('middlename', [''])[0]
+            # d_region = d.get('region', [''])
+            # d_city = d.get('city', [''])
+            # d_phone = d.get('phone', [''])[0]
+            # d_email = d.get('email', [''])[0]
+            # d_comment = d.get('comment', [''])[0]
 
-            if environ["QUERY_STRING"] != "":
-                remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
-                
+            # conn = sqlite3.connect("comments.db")
+            # c = conn.cursor()
+            # c.execute("INSERT INTO comments ()"
+            #         "VALUES ({}, {}, {}, {}, {}, {}, {}, {})"
+            #           .format(d_surname, d_name, d_middlename, d_region,
+            #                   d_city, d_phone, d_email, d_comment))
+            # conn.commit()
+            # c.close()
+        
 
 
-        elif (environ["PATH_INFO"].lower() == "/stat" or 
-              environ["PATH_INFO"].lower() == "/stat/"):
-            pass
-        else:
-            default_page = open("templates/default_page.html", "r")
-            response_body =  default_page.read()
-            default_page.close()
+        view_template = open("templates/view.html", "r")
+        view = view_template.read()
+        view_template.close()
+        conn = sqlite3.connect("comments.db")
+        c = conn.cursor()
+        c.execute("SELECT * FROM comments " + \
+                   "LEFT JOIN regions ON comments.region = regions.id " + \
+                   "LEFT JOIN cities  ON comments.city = cities.id " )
+        comments = c.fetchall()
+        c.close()
+        comments_table = ""
+        for comment in comments:
+            comment = list(comment)
+            comment[4] = comment[10]
+            comment[5] = comment[12]
+            comment = comment[:9]
+            comments_table += '<tr>'
+            for com in comment:
+                if com == None:
+                    comments_table += '<td></td>'
+                elif isinstance(com, int):
+                    comments_table += '<td>' + str(com) + '</td>'
+                else:
+                    comments_table += '<td>' + com.encode("utf-8") \
+                                    + '</td>'
+            comments_table += '<td><a onclick="removeComment(this)" \
+                               href="../view/">Удалить</a></td></tr>'
+        
+        response_body = view % comments_table
+        # for key, value in environ.items():
+        #     print key, value
 
-        status = '200 OK'
-        response_headers = [
-            ('Access-Control-Allow-Origin', '*'),
-            ('Content-Type', 'text/html'),
-            ('Content-Length', str(len(response_body))),
-        ]
+    elif (environ["PATH_INFO"].lower() == "/stat" or 
+          environ["PATH_INFO"].lower() == "/stat/"):
+        pass
+    else:
+        default_page = open("templates/default_page.html", "r")
+        response_body =  default_page.read()
+        default_page.close()
+
+    status = '200 OK'
+    response_headers = [
+        ('Access-Control-Allow-Origin', '*'),
+        ('Content-Type', 'text/html'),
+        ('Content-Length', str(len(response_body))),
+    ]
     start_response(status, response_headers)
     return [response_body]
 
