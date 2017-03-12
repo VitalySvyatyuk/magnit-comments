@@ -72,25 +72,24 @@ def application(environ, start_response):
                 request_body_size = 0
 
             request_body = environ['wsgi.input'].read(request_body_size)
-            d_parse = parse_qs(request_body)
-            print d_parse
-            # d_surname = d.get('surname', [''])[0]
-            # d_name = d.get('name', [''])[0]
-            # d_middlename = d.get('middlename', [''])[0]
-            # d_region = d.get('region', [''])
-            # d_city = d.get('city', [''])
-            # d_phone = d.get('phone', [''])[0]
-            # d_email = d.get('email', [''])[0]
-            # d_comment = d.get('comment', [''])[0]
-
-            # conn = sqlite3.connect("comments.db")
-            # c = conn.cursor()
-            # c.execute("INSERT INTO comments ()"
-            #         "VALUES ({}, {}, {}, {}, {}, {}, {}, {})"
-            #           .format(d_surname, d_name, d_middlename, d_region,
-            #                   d_city, d_phone, d_email, d_comment))
-            # conn.commit()
-            # c.close()
+            d = parse_qs(request_body)
+            d_surname = d.get('surname', [''])[0]
+            d_name = d.get('name', [''])[0]
+            d_middlename = d.get('middlename', [''])[0]
+            d_region = d.get('region', [''])[0]
+            d_city = d.get('city', [''])[0]
+            d_phone = d.get('phone', [''])[0]
+            d_email = d.get('email', [''])[0]
+            d_comment = d.get('comment', [''])[0]
+            conn = sqlite3.connect("comments.db")
+            c = conn.cursor()
+            c.execute('INSERT INTO comments (surname, name, middlename, ' + \
+                                  'region, city, phone, email, comment) ' + \
+                      'VALUES ("{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}")'
+                      .format(d_surname, d_name, d_middlename, d_region, 
+                              d_city, d_phone, d_email, d_comment))
+            conn.commit()
+            c.close()
         
 
 
@@ -123,8 +122,6 @@ def application(environ, start_response):
                                href="../view/">Удалить</a></td></tr>'
         
         response_body = view % comments_table
-        # for key, value in environ.items():
-        #     print key, value
 
     elif (environ["PATH_INFO"].lower() == "/stat" or 
           environ["PATH_INFO"].lower() == "/stat/"):
