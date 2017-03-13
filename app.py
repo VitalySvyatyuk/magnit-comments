@@ -9,10 +9,10 @@ from urlparse import parse_qs
 
 
 def application(environ, start_response):
-    comment_template = open("templates/comment.html", "r")
-    html = comment_template.read()
-    comment_template.close()
     if environ["PATH_INFO"].lower().startswith("/comment"):
+        comment_template = open("templates/comment.html", "r")
+        html = comment_template.read()
+        comment_template.close()
         conn = sqlite3.connect("comments.db")
         c = conn.cursor()
         c.execute("SELECT * FROM regions")
@@ -23,7 +23,6 @@ def application(environ, start_response):
                        .format(region[0], region[1].encode('utf-8'))
         htm = html.replace('"default"></option>', 
                             'default"></option>' + options)
-
         if environ["QUERY_STRING"] == "":
             option = '<option value="none"></option>'
             response_body = htm % option
@@ -56,7 +55,7 @@ def application(environ, start_response):
                 ('Content-Length', str(len(response_body))),
             ]            
     elif (environ["PATH_INFO"].lower() == "/view" or 
-        environ["PATH_INFO"].lower() == "/view/"):
+          environ["PATH_INFO"].lower() == "/view/"):
         if environ["REQUEST_METHOD"] == "GET":
             if environ["QUERY_STRING"] != "":
                 remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
@@ -70,7 +69,6 @@ def application(environ, start_response):
                 request_body_size = int(environ.get('CONTENT_LENGTH', 0))
             except (ValueError):
                 request_body_size = 0
-
             request_body = environ['wsgi.input'].read(request_body_size)
             d = parse_qs(request_body)
             d_surname = d.get('surname', [''])[0]
@@ -90,17 +88,14 @@ def application(environ, start_response):
                               d_city, d_phone, d_email, d_comment))
             conn.commit()
             c.close()
-        
-
-
         view_template = open("templates/view.html", "r")
         view = view_template.read()
         view_template.close()
         conn = sqlite3.connect("comments.db")
         c = conn.cursor()
         c.execute("SELECT * FROM comments " + \
-                   "LEFT JOIN regions ON comments.region = regions.id " + \
-                   "LEFT JOIN cities  ON comments.city = cities.id " )
+                  "LEFT JOIN regions ON comments.region = regions.id " + \
+                  "LEFT JOIN cities  ON comments.city = cities.id " )
         comments = c.fetchall()
         c.close()
         comments_table = ""
@@ -120,12 +115,59 @@ def application(environ, start_response):
                                     + '</td>'
             comments_table += '<td><a onclick="removeComment(this)" \
                                href="../view/">Удалить</a></td></tr>'
-        
         response_body = view % comments_table
-
     elif (environ["PATH_INFO"].lower() == "/stat" or 
           environ["PATH_INFO"].lower() == "/stat/"):
-        pass
+        stat_template = open("templates/stat.html", "r")
+        stat = stat_template.read()
+        stat_template.close()
+        conn = sqlite3.connect("comments.db")
+        c = conn.cursor()
+        c.execute("SELECT comments.region, regions.region, " +
+                  "COUNT(comments.region)  " +
+                  "FROM comments " +
+                  "INNER JOIN regions ON comments.region = regions.id " +
+                  "GROUP BY comments.region " +
+                  "HAVING COUNT(*) > 5")
+        regions = c.fetchall()
+        c.close()
+        stat_reg_table = ""
+        for region in regions:
+            stat_reg_table += '<tr>'
+            stat_reg_table += '<td>' + str(region[0]) + '</td>' + \
+                              '<td><a href="../stat/' + str(region[0]) + \
+                              '">' + region[1] + '</a></td>' + \
+                              '<td>' + str(region[2]) + '</td>'
+            stat_reg_table += '</tr>'
+        response_body = stat % stat_reg_table.encode('utf-8')
+    elif re.search(r"^/stat/\d+$", environ["PATH_INFO"].lower()):
+        region_id = environ["PATH_INFO"].lower()[6:]
+        stat_cities_template = open("templates/stat_cities.html", "r")
+        stat_cities = stat_cities_template.read()
+        stat_cities_template.close()
+        conn = sqlite3.connect("comments.db")
+        c = conn.cursor()
+        c.execute("SELECT comments.city, cities.city, " +
+                  "COUNT(comments.city) " +
+                  "FROM comments " +
+                  "INNER JOIN cities ON comments.city = cities.id " +
+                  "GROUP BY comments.city " +
+                  "HAVING comments.region = {}"
+                  .format(region_id))
+        cities = c.fetchall()
+        c.execute("SELECT region from regions WHERE regions.id={}"
+                  .format(region_id))
+        region_name = c.fetchall()
+        c.close()
+        stat_cities_table = ""
+        for city in cities:
+            stat_cities_table += '<tr>'
+            stat_cities_table += '<td>' + str(city[0]) + '</td>' + \
+                                 '<td>' + city[1] + '</td>' + \
+                                 '<td>' + str(city[2]) + '</td>'
+            stat_cities_table += '</tr>'
+        response_body = stat_cities % (stat_cities_table.encode('utf-8'),
+                                       region_name[0][0].encode('utf-8'))
     else:
         default_page = open("templates/default_page.html", "r")
         response_body =  default_page.read()

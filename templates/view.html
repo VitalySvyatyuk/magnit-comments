@@ -8,14 +8,10 @@
     <script >
         function removeComment(butn) {
             var td = $(butn).closest('tr').find('td:eq(0)').text();
-
             $.ajax({
                 url: "/view/",
                 context: document.body,
                 data: {"to_remove": td},
-                // success: function(response){
-                //     // location.reload();
-                // }
             });
         }
     </script>

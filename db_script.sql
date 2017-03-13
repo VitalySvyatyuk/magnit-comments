@@ -38,6 +38,8 @@ INSERT INTO cities VALUES (7, 'Ставрополь', 3);
 INSERT INTO cities VALUES (8, 'Пятигорск', 3);
 INSERT INTO cities VALUES (9, 'Кисловодск', 3);
 
+-- Строки для заполнения таблицы
+
 INSERT INTO comments (surname, name, middlename, region,
                       city, phone, email, comment)
     VALUES (
@@ -120,7 +122,7 @@ INSERT INTO comments (surname, name, middlename, region,
      '4',
      '(918)5554433',
      'ivan@fdssdf.com',
-     'Второй комментарий номер два'
+     'Второй комментарий.'
     );
 INSERT INTO comments (surname, name, middlename, region,
                       city, phone, email, comment)
@@ -132,14 +134,17 @@ INSERT INTO comments (surname, name, middlename, region,
      '3',
      '(925)4358496',
      'sid@yahoo.com',
-     'Четвёртый комментарий. Четвёртый комментарий.'
+     'Четвёртый комментарий.'
     );
-INSERT INTO comments (surname, name, region, city, comment)
+INSERT INTO comments (surname, name, middlename, region,
+                      city, phone, email, comment)
     VALUES (
      'Фролов',
      'Вячеслав',
+     '',
      '1',
      '2',
-     'Третий язвительный комментарий номер три.
-      Повторный третий язвительный комментарий номер три.'
+     '',
+     '',
+     'Третий комментарий'
     );
