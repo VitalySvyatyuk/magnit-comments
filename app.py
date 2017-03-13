@@ -19,8 +19,8 @@ def application(environ, start_response):
         regions = c.fetchall()
         options = ""
         for region in regions:
-            options += '<option value="{}">{}</option>' \
-                       .format(region[0], region[1].encode('utf-8'))
+            options += '<option value="%s">%s</option>' \
+                        % (region[0], region[1].encode('utf-8'))
         htm = html.replace('"default"></option>', 
                             'default"></option>' + options)
         if environ["QUERY_STRING"] == "":
@@ -37,8 +37,8 @@ def application(environ, start_response):
             if region_ != "default%22":
                 conn = sqlite3.connect("comments.db")
                 c = conn.cursor()
-                c.execute("SELECT * FROM cities WHERE region_id = {}"
-                          .format(int(region_)))
+                c.execute("SELECT * FROM cities WHERE region_id = %s" \
+                          % int(region_))
                 cities = c.fetchall()
                 option = {}
                 for city in cities:
@@ -59,9 +59,10 @@ def application(environ, start_response):
         if environ["REQUEST_METHOD"] == "GET":
             if environ["QUERY_STRING"] != "":
                 remove_id = environ["QUERY_STRING"].replace("to_remove=", "")
+                print remove_id
                 conn = sqlite3.connect("comments.db")
                 c = conn.cursor()
-                c.execute("DELETE FROM comments WHERE id={}".format(remove_id))
+                c.execute("DELETE FROM comments WHERE id=%s" % remove_id)
                 conn.commit()
                 c.close()
         elif environ["REQUEST_METHOD"] == "POST":
@@ -83,9 +84,9 @@ def application(environ, start_response):
             c = conn.cursor()
             c.execute('INSERT INTO comments (surname, name, middlename, ' + \
                                   'region, city, phone, email, comment) ' + \
-                      'VALUES ("{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}")'
-                      .format(d_surname, d_name, d_middlename, d_region, 
-                              d_city, d_phone, d_email, d_comment))
+                      'VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' \
+                      % (d_surname, d_name, d_middlename, d_region, 
+                         d_city, d_phone, d_email, d_comment))
             conn.commit()
             c.close()
         view_template = open("view.html", "r")
@@ -152,11 +153,11 @@ def application(environ, start_response):
                   "FROM comments " +
                   "INNER JOIN cities ON comments.city = cities.id " +
                   "GROUP BY comments.city " +
-                  "HAVING comments.region = {}"
-                  .format(region_id))
+                  "HAVING comments.region = %s" \
+                  % region_id)
         cities = c.fetchall()
-        c.execute("SELECT region from regions WHERE regions.id={}"
-                  .format(region_id))
+        c.execute("SELECT region from regions WHERE regions.id=%s"
+                  % region_id)
         region_name = c.fetchall()
         c.close()
         stat_cities_table = ""
