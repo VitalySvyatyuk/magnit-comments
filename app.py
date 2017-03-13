@@ -10,7 +10,7 @@ from urlparse import parse_qs
 
 def application(environ, start_response):
     if environ["PATH_INFO"].lower().startswith("/comment"):
-        comment_template = open("templates/comment.html", "r")
+        comment_template = open("comment.html", "r")
         html = comment_template.read()
         comment_template.close()
         conn = sqlite3.connect("comments.db")
@@ -88,7 +88,7 @@ def application(environ, start_response):
                               d_city, d_phone, d_email, d_comment))
             conn.commit()
             c.close()
-        view_template = open("templates/view.html", "r")
+        view_template = open("view.html", "r")
         view = view_template.read()
         view_template.close()
         conn = sqlite3.connect("comments.db")
@@ -118,7 +118,7 @@ def application(environ, start_response):
         response_body = view % comments_table
     elif (environ["PATH_INFO"].lower() == "/stat" or 
           environ["PATH_INFO"].lower() == "/stat/"):
-        stat_template = open("templates/stat.html", "r")
+        stat_template = open("stat.html", "r")
         stat = stat_template.read()
         stat_template.close()
         conn = sqlite3.connect("comments.db")
@@ -142,7 +142,7 @@ def application(environ, start_response):
         response_body = stat % stat_reg_table.encode('utf-8')
     elif re.search(r"^/stat/\d+$", environ["PATH_INFO"].lower()):
         region_id = environ["PATH_INFO"].lower()[6:]
-        stat_cities_template = open("templates/stat_cities.html", "r")
+        stat_cities_template = open("stat_cities.html", "r")
         stat_cities = stat_cities_template.read()
         stat_cities_template.close()
         conn = sqlite3.connect("comments.db")
@@ -169,7 +169,7 @@ def application(environ, start_response):
         response_body = stat_cities % (stat_cities_table.encode('utf-8'),
                                        region_name[0][0].encode('utf-8'))
     else:
-        default_page = open("templates/default_page.html", "r")
+        default_page = open("default_page.html", "r")
         response_body =  default_page.read()
         default_page.close()
 
